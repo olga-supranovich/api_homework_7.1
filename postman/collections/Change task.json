@@ -15,6 +15,9 @@
 						"id": "888408bc-aae7-4e7c-b34e-826beba5855b",
 						"exec": [
 							"let jsonData = pm.response.json();",
+							"let moment = require('moment');",
+							"let createdTaskDate = moment(pm.response.headers.get('Date')).utc().format('LLL');",
+							"let currentDate = pm.variables.get('currentDate');",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -36,7 +39,9 @@
 							"    pm.expect(jsonData).to.exist;",
 							"});",
 							"",
-							"",
+							"pm.test(\"Date in response header is correct\", function () {",
+							"    pm.expect(createdTaskDate).to.eql(currentDate);",
+							"});",
 							"",
 							"pm.test(\"Token provided\", function () {",
 							"    pm.expect(jsonData.id_token).to.exist;",
@@ -45,6 +50,19 @@
 							"pm.environment.set('token', jsonData.id_token)",
 							"",
 							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "dd1ff735-aa3d-421a-9836-65ae31e71699",
+						"exec": [
+							"let moment = require('moment');\r",
+							"let currentDate = moment().utc().format('LLL');\r",
+							"\r",
+							"pm.variables.set('currentDate', currentDate);"
 						],
 						"type": "text/javascript"
 					}
@@ -600,17 +618,17 @@
 	],
 	"variable": [
 		{
-			"id": "e0eb0ce5-e0b9-4f18-a39b-d4e602422423",
+			"id": "09c00bc4-8d7b-4fbf-ab7c-8c6125ee3813",
 			"key": "taskText",
 			"value": ""
 		},
 		{
-			"id": "8d954608-1be9-417d-a8df-fea0255deb76",
+			"id": "b8008077-b97d-416a-a30b-3e4f23e9ecc1",
 			"key": "taskId",
 			"value": ""
 		},
 		{
-			"id": "1e4f43f8-e621-4822-88de-4772560cb1fd",
+			"id": "aa104cf4-df57-4e0c-9418-da31fbc93917",
 			"key": "taskTextUpdated",
 			"value": ""
 		}
