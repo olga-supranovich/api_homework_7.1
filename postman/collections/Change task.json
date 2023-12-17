@@ -12,12 +12,41 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "888408bc-aae7-4e7c-b34e-826beba5855b",
 						"exec": [
 							"let jsonData = pm.response.json();",
-							"pm.environment.set('token', jsonData.id_token)"
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Content-Encoding is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Encoding\");",
+							"});",
+							"",
+							"pm.test(\"response is JSON\", function () {",
+							"    pm.expect(jsonData).to.exist;",
+							"});",
+							"",
+							"",
+							"",
+							"pm.test(\"Token provided\", function () {",
+							"    pm.expect(jsonData.id_token).to.exist;",
+							"});",
+							"",
+							"pm.environment.set('token', jsonData.id_token)",
+							"",
+							""
 						],
-						"type": "text/javascript",
-						"id": "888408bc-aae7-4e7c-b34e-826beba5855b"
+						"type": "text/javascript"
 					}
 				}
 			],
@@ -86,7 +115,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"username\":\"{{adminLogin}}\",\"password\":\"{{adminPassword}}\",\"rememberMe\":false}"
+					"raw": "{\r\n    \"username\": \"{{adminLogin}}\",\r\n    \"password\": \"{{adminPassword}}\",\r\n    \"rememberMe\": false\r\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/authenticate",
@@ -106,20 +135,67 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "4e51baa6-f638-4672-9995-b0155626579d",
 						"exec": [
 							"let jsonData = pm.response.json();",
+							"let moment = require('moment');",
+							"let createdTaskDate = moment(pm.response.headers.get('Date')).utc().format('LLL');",
+							"let currentDate = pm.variables.get('currentDate');",
 							"",
+							"pm.test(\"response is JSON\", function () {",
+							"    pm.expect(jsonData).to.exist;",
+							"});",
 							"",
-							"pm.test(\"Your test name\", function () {",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Content-Encoding is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Encoding\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Task test is correct\", function () {",
 							"    pm.expect(jsonData.text).to.eql(\"some text\");",
 							"});",
 							"",
-							"pm.environment.set(\"task_id\", jsonData.id)",
+							"pm.collectionVariables.set(\"taskId\", jsonData.id)",
+							"",
+							"pm.test(\"Date in response header is correct\", function () {",
+							"    pm.expect(createdTaskDate).to.eql(currentDate);",
+							"});",
+							"",
+							"//console.log(createdTaskDate);",
+							"",
 							"",
 							""
 						],
-						"type": "text/javascript",
-						"id": "4e51baa6-f638-4672-9995-b0155626579d"
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b1480f95-9591-4342-baa4-c70efc157da6",
+						"exec": [
+							"let moment = require('moment');\r",
+							"let currentDate = moment().utc().format('LLL');\r",
+							"\r",
+							"pm.collectionVariables.set('taskText', 'some text');\r",
+							"\r",
+							"\r",
+							"pm.variables.set('currentDate', currentDate);\r",
+							"\r",
+							"//console.log(pm.variables.get('currentDate'));"
+						],
+						"type": "text/javascript"
 					}
 				}
 			],
@@ -145,7 +221,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"text\": \"some text\",\n  \"answer\": \"string\",\n  \"title\": \"string\"\n}"
+					"raw": "{\n  \"text\": \"{{taskText}}\",\n  \"answer\": \"string\",\n  \"title\": \"string\"\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/tasks",
@@ -161,6 +237,72 @@
 		},
 		{
 			"name": "get tasks list",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fd6c9e7d-3150-4b63-8870-59d6a551a8f0",
+						"exec": [
+							"let moment = require('moment');\r",
+							"let currentDate = moment().utc().format('LLL');\r",
+							"\r",
+							"pm.variables.set('currentDate', currentDate);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8eeae41a-89af-4b68-9fc6-eef5e947d6ef",
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"let moment = require('moment');\r",
+							"let createdTaskDate = moment(pm.response.headers.get('Date')).utc().format('LLL');\r",
+							"let currentDate = pm.variables.get('currentDate');\r",
+							"let taskId = pm.collectionVariables.get('taskId')\r",
+							"\r",
+							"pm.test(\"response is JSON\", function () {\r",
+							"    pm.expect(jsonData).to.exist;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Date is present\", function () {\r",
+							"    pm.response.to.have.header(\"Date\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Encoding is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Encoding\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Date in response header is correct\", function () {\r",
+							"    pm.expect(createdTaskDate).to.eql(currentDate);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Saved taskId is in the task list\", function () {\r",
+							"    pm.expect(jsonData.some(item => item.id === taskId)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"id": "383f7c09-c585-470a-82b4-04d44c462aff",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -174,11 +316,12 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTcwMDY1MTA3OCwiYXV0aCI6IlJPTEVfQURNSU4iLCJpYXQiOjE3MDA1NjQ2Nzh9.vIN53s5RHi0_NuFKchJ3Wxi3ajjjtTt_0X_qJSYtFti7Xw4Veqy9jEpRervasFgwCyrZGihIehGmwaUXLYIaFg"
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTcwMDY1MTA3OCwiYXV0aCI6IlJPTEVfQURNSU4iLCJpYXQiOjE3MDA1NjQ2Nzh9.vIN53s5RHi0_NuFKchJ3Wxi3ajjjtTt_0X_qJSYtFti7Xw4Veqy9jEpRervasFgwCyrZGihIehGmwaUXLYIaFg",
+						"disabled": true
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/tasks?page=0&size=100",
+					"raw": "{{baseUrl}}/tasks?page=0&size=300",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -192,7 +335,7 @@
 						},
 						{
 							"key": "size",
-							"value": "100"
+							"value": "300"
 						}
 					]
 				}
@@ -201,6 +344,77 @@
 		},
 		{
 			"name": "change task text",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "06f2a80d-00b0-48df-aae6-6fc8ccbf584c",
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"let moment = require('moment');\r",
+							"let createdTaskDate = moment(pm.response.headers.get('Date')).utc().format('LLL');\r",
+							"let currentDate = pm.variables.get('currentDate');\r",
+							"let taskId = pm.environment.get('taskId');\r",
+							"let taskTextUpdated = pm.collectionVariables.get('taskTextUpdated');\r",
+							"\r",
+							"pm.test(\"response is JSON\", function () {\r",
+							"    pm.expect(jsonData).to.exist;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Date is present\", function () {\r",
+							"    pm.response.to.have.header(\"Date\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Encoding is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Encoding\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Date in response header is correct\", function () {\r",
+							"    pm.expect(createdTaskDate).to.eql(currentDate);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Updated task text is correct\", function () {\r",
+							"    pm.expect(jsonData.text).to.eql(taskTextUpdated);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c2d75319-c0e6-44ed-a26a-b37d4c940175",
+						"exec": [
+							"let moment = require('moment');\r",
+							"let currentDate = moment().utc().format('LLL');\r",
+							"let jsonBody = JSON.parse(pm.request.body);\r",
+							"\r",
+							"pm.variables.set('currentDate', currentDate);\r",
+							"pm.collectionVariables.set('taskTextUpdated', 'new task text');\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"id": "91bea036-9e7a-4a0e-9704-8a1c5cdac78b",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -223,16 +437,16 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"id\": {{task_id}},\n  \"text\": \"some new new text\"\n}"
+					"raw": "{\n  \"id\": \"{{taskId}}\",\n  \"text\": \"{{taskTextUpdated}}\"\n}"
 				},
 				"url": {
-					"raw": "{{baseUrl}}/tasks/{{task_id}}",
+					"raw": "{{baseUrl}}/tasks/{{taskId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"tasks",
-						"{{task_id}}"
+						"{{taskId}}"
 					]
 				}
 			},
@@ -244,21 +458,80 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "237ed619-03cb-42d0-afbf-a531495e85a1",
 						"exec": [
-							"pm.sendRequest(",
-							"    {url: 'https://sqlverifier-50d286d70656.herokuapp.com/api/tasks/3070',",
-							"    method: 'DELETE',",
-							"    header:",
-							"    {'Authorization': 'Bearer ' + pm.environment.get('token'),",
-							"    'accept': '*/*'}",
-							"    }",
-							"    , function (err, response) {",
-							"    console.log(response);",
+							"let jsonData = pm.response.json();",
+							"let moment = require('moment');",
+							"let createdTaskDate = moment(pm.response.headers.get('Date')).utc().format('LLL');",
+							"let currentDate = pm.variables.get('currentDate');",
+							"let taskId = pm.collectionVariables.get('taskId');",
+							"",
+							"let taskIdResponse = jsonData.id;",
+							"let taskTextResponse = jsonData.text;",
+							"let taskTextUpdated = pm.collectionVariables.get('taskTextUpdated'); ",
+							"",
+							"pm.test(\"response is JSON\", function () {",
+							"    pm.expect(jsonData).to.exist;",
 							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Content-Encoding is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Encoding\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Date in response header is correct\", function () {",
+							"    pm.expect(createdTaskDate).to.eql(currentDate);",
+							"});",
+							"",
+							"pm.test(\"Task id is correct \", function () {",
+							"    pm.expect(taskId).to.eql(taskIdResponse);",
+							"});",
+							"",
+							"pm.test(\"Task text is correct \", function () {",
+							"    pm.expect(taskTextUpdated).to.eql(taskTextResponse);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"// pm.sendRequest(",
+							"//     {url: 'https://sqlverifier-50d286d70656.herokuapp.com/api/tasks/3070',",
+							"//     method: 'DELETE',",
+							"//     header:",
+							"//     {'Authorization': 'Bearer ' + pm.environment.get('token'),",
+							"//     'accept': '*/*'}",
+							"//     }",
+							"//     , function (err, response) {",
+							"//     console.log(response);",
+							"// });",
 							""
 						],
-						"type": "text/javascript",
-						"id": "f3b34c82-c0a4-4858-a2bd-a521d29b95de"
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9954a9de-f8d0-4ac7-8afe-2e923d57d5b3",
+						"exec": [
+							"let moment = require('moment');\r",
+							"let currentDate = moment().utc().format('LLL');\r",
+							"\r",
+							"pm.variables.set('currentDate', currentDate);"
+						],
+						"type": "text/javascript"
 					}
 				}
 			],
@@ -279,13 +552,13 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/tasks/{{task_id}}",
+					"raw": "{{baseUrl}}/tasks/{{taskId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"tasks",
-						"{{task_id}}"
+						"{{taskId}}"
 					]
 				}
 			},
@@ -322,6 +595,23 @@
 				],
 				"id": "a5344a78-f466-4f37-bbbb-38b8323fb57a"
 			}
+		}
+	],
+	"variable": [
+		{
+			"id": "f980b847-aa95-4a2e-a372-6df99a926705",
+			"key": "taskText",
+			"value": ""
+		},
+		{
+			"id": "2d152063-a8bd-4662-a766-ff6144156ac0",
+			"key": "taskId",
+			"value": ""
+		},
+		{
+			"id": "44f8560d-1ffc-4a16-8927-db6ad236a86e",
+			"key": "taskTextUpdated",
+			"value": ""
 		}
 	]
 }
