@@ -188,12 +188,13 @@
 							"let moment = require('moment');\r",
 							"let currentDate = moment().utc().format('LLL');\r",
 							"\r",
+							"pm.variables.set('currentDate', currentDate);\r",
 							"pm.collectionVariables.set('taskText', 'some text');\r",
 							"\r",
 							"\r",
-							"pm.variables.set('currentDate', currentDate);\r",
 							"\r",
-							"//console.log(pm.variables.get('currentDate'));"
+							"\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -599,17 +600,17 @@
 	],
 	"variable": [
 		{
-			"id": "f980b847-aa95-4a2e-a372-6df99a926705",
+			"id": "e0eb0ce5-e0b9-4f18-a39b-d4e602422423",
 			"key": "taskText",
 			"value": ""
 		},
 		{
-			"id": "2d152063-a8bd-4662-a766-ff6144156ac0",
+			"id": "8d954608-1be9-417d-a8df-fea0255deb76",
 			"key": "taskId",
 			"value": ""
 		},
 		{
-			"id": "44f8560d-1ffc-4a16-8927-db6ad236a86e",
+			"id": "1e4f43f8-e621-4822-88de-4772560cb1fd",
 			"key": "taskTextUpdated",
 			"value": ""
 		}
