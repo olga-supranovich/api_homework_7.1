@@ -428,7 +428,6 @@
 						"exec": [
 							"let moment = require('moment');\r",
 							"let currentDate = moment().utc().format('LLL');\r",
-							"let jsonBody = JSON.parse(pm.request.body);\r",
 							"\r",
 							"pm.variables.set('currentDate', currentDate);\r",
 							"pm.collectionVariables.set('taskTextUpdated', 'new task text');\r",
@@ -495,6 +494,8 @@
 							"let taskIdResponse = jsonData.id;",
 							"let taskTextResponse = jsonData.text;",
 							"let taskTextUpdated = pm.collectionVariables.get('taskTextUpdated'); ",
+							"let baseUrl = pm.environment.get('baseUrl');",
+							"",
 							"",
 							"pm.test(\"response is JSON\", function () {",
 							"    assert.exists(jsonData);",
@@ -532,16 +533,24 @@
 							"    assert.isBelow(pm.response.responseTime, 200);",
 							"});",
 							"",
-							"// pm.sendRequest(",
-							"//     {url: 'https://sqlverifier-50d286d70656.herokuapp.com/api/tasks/3070',",
-							"//     method: 'DELETE',",
-							"//     header:",
-							"//     {'Authorization': 'Bearer ' + pm.environment.get('token'),",
-							"//     'accept': '*/*'}",
-							"//     }",
-							"//     , function (err, response) {",
-							"//     console.log(response);",
-							"// });",
+							"//delete created task",
+							"pm.sendRequest(",
+							"    {url: `${baseUrl}/tasks/${taskId}`,",
+							"    method: 'DELETE',",
+							"    header:",
+							"    {'Authorization': 'Bearer ' + pm.environment.get('token'),",
+							"    'accept': '*/*'}",
+							"    }",
+							"    , function (err, response) {",
+							"    console.log(response);",
+							"});",
+							"",
+							"//unset variables",
+							"pm.environment.unset('token');",
+							"pm.collectionVariables.unset('taskId');",
+							"",
+							"",
+							"",
 							""
 						],
 						"type": "text/javascript"
@@ -625,17 +634,12 @@
 	],
 	"variable": [
 		{
-			"id": "67fdb8eb-3314-4166-9e57-11eac5e15b96",
+			"id": "87fd66b6-b288-4dc8-88e5-41a7a7196f3a",
 			"key": "taskText",
 			"value": ""
 		},
 		{
-			"id": "fecf5e9a-f2c3-446c-a507-c505d8159311",
-			"key": "taskId",
-			"value": ""
-		},
-		{
-			"id": "0535b4f5-4d3a-4bd1-abfe-e3399775696a",
+			"id": "6a0069d2-09ed-43d0-ae9e-acec59e0d0bb",
 			"key": "taskTextUpdated",
 			"value": ""
 		}
